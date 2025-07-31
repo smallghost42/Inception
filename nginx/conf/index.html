@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #28a745; /* Green for connected */
+        }
+        p {
+            font-size: 1.1em;
+            margin-top: 15px;
+        }
+        span {
+            font-weight: bold;
+            color: #007bff; /* Blue for emphasis */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Connected!</h1>
+        <p>You are connected to:</p>
+        <p>IP Address: <span id="ipAddress">Loading...</span></p>
+        <p>Port: <span id="port">Loading...</span></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ipAddressSpan = document.getElementById('ipAddress');
+            const portSpan = document.getElementById('port');
+            ipAddressSpan.textContent = window.location.hostname;
+            portSpan.textContent = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+        });
+    </script>
+</body>
+</html>
