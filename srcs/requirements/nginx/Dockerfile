@@ -17,8 +17,8 @@ RUN openssl req -x509 -nodes -days 365 \
     -out /etc/ssl/certs/nginx.crt \
     -subj "/C=MD/ST=Tana/L=Tana/O=None/OU=None/CN=localhost"
 
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 COPY ./conf/default.conf /etc/nginx/http.d/default.conf
 COPY ./conf/index.html /usr/share/nginx/index.html
+
 EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
