@@ -2,34 +2,11 @@
 version: '3.8'
 services:
   nginx:
-    image: ./requirements/nginx/
+    build:
+      context: mariadb
+      dockerfile: Dockerfile
     ports: [443:443]
     restart: on-failure
     networks:
       nginxNetworks:
         ipv4_address: ip
-  wordpress:
-    image: ./requirements/wordpress/
-    ports: [9000:9000]
-    depends_on: [mysql]  # this should be created first
-    environment:
-      WORDPRESS_DB_HOST: mysql
-      WORDPRESS_DB_USER: root
-      WORDPRESS_DB_PASSWORD: small
-      WORDPRESS_DB_NAME: wordpress
-    volumes: [wordpress_file:/app/data]
-  mariadb:
-    image: ./requirements/mariadb/
-    environment:
-      MYSQL_DATABASE: wordpress
-      MYSQL_ROOT_PASSWORD: small
-    volumes: [wordpress_db:/var/lib/mysql]
-volumes:
-  wordpress_file:
-  wordpress_db:
-networks:
-  nginxNetworks:
-    ipam:  # ip address management
-      driver: default
-      config:
-        subnet: []
