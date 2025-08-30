@@ -3,10 +3,60 @@ version: '3.8'
 services:
   nginx:
     build:
-      context: mariadb
+      context: nginx
       dockerfile: Dockerfile
     ports: [443:443]
     restart: on-failure
-    networks:
-      nginxNetworks:
-        ipv4_address: ip
+    env_file: ./.env
+    environment: [URL]
+  mariadb:
+    build:
+      context: mariadb
+      dockerfile: Dockerfile
+    ports: [9000:9000]
+    restart: on-failure
+    env_file: ./.env
+    secrets: [db_pass db_root_pass credentials]
+    environment:
+      - ADMIN_NAME USER_NAME ADMIN_PASS USER_PASS DB_NAME DB_PASSWORD URL HOST
+    volumes: [wp_db_volume:/app/data/]
+    networks: [private]
+  wordpress:
+    build:
+      context: wordpress
+      dockerfile: Dockerfile
+    ports: [3306:3306]
+    restart: on-failure
+    env_file: ./.env
+    secrets: [db_pass credentials]
+    environment:
+      - ADMIN_NAME USER_NAME ADMIN_PASS USER_PASS DB_NAME DB_PASSWORD URL HOST
+    volumes: [wp_file_volume:/app/data/]
+    networks: [private]
+volumes:
+  wp_file_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/small/data/
+  wp_db_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/small/data/
+networks:
+  private:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 8.8.8.0/24
+        - gateway: 8.8.8.1
+secrets:
+  credentials:
+    file: ../secrets/credentials.txt
+  db_pass:
+    file: ../secrets/db_password.txt
+  db_root_pass:
+    file: ../secrets/db_root_password.txt
