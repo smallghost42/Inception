@@ -6,6 +6,6 @@ WORKDIR /app
 COPY ./conf/mariadb_db_check.sh /app
 RUN chmod +x /app/mariadb_db_check.sh
 
-ENV PATH="/app:$PATH
+ENV PATH="/app:$PATH"
 
 ENTRYPOINT [ "mariadb_db_check.sh" ]

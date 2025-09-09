@@ -5,10 +5,12 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
-WORKDIR .
+WORKDIR /app
 
-COPY ./conf/wordpress_db_check.sh .
-RUN chmod +x /app/bin/wordpress_db_check.sh
+COPY ./conf/wordpress_db_check.sh /app
+RUN chmod +x /app/wordpress_db_check.sh
+
+ENV PATH="/app:$PATH"
 
 ENTRYPOINT [ "wordpress_db_check.sh" ]
 
