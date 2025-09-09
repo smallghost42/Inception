@@ -12,6 +12,8 @@ RUN chmod +x /app/wordpress_db_check.sh
 
 ENV PATH="/app:$PATH"
 
+WORKDIR /app/data
+
 ENTRYPOINT [ "wordpress_db_check.sh" ]
 
 EXPOSE 9000
