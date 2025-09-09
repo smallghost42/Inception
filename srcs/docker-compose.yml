@@ -1,61 +1,92 @@
----
 version: '3.8'
 services:
   nginx:
     build:
-      context: nginx
+      context: ./requirements/nginx
       dockerfile: Dockerfile
-    ports: [443:443]
+    ports: ['443:443']
     restart: on-failure
     env_file: ./.env
     environment: [URL]
-  mariadb:
-    build:
-      context: mariadb
-      dockerfile: Dockerfile
-    ports: [9000:9000]
-    restart: on-failure
-    env_file: ./.env
-    secrets: [db_pass db_root_pass credentials]
-    environment:
-      - ADMIN_NAME USER_NAME ADMIN_PASS USER_PASS DB_NAME DB_PASSWORD URL HOST
-    volumes: [wp_db_volume:/app/data/]
-    networks: [private]
+    networks: [public]
+    depends_on:
+      wordpress:
+        condition: service_healthy
+        restart: true
   wordpress:
     build:
-      context: wordpress
+      context: ./requirements/wordpress
       dockerfile: Dockerfile
-    ports: [3306:3306]
+    ports: ['3306:3306']
     restart: on-failure
     env_file: ./.env
-    secrets: [db_pass credentials]
+    secrets:
+      - db_pass
+      - credentials
+      - credentials2
     environment:
-      - ADMIN_NAME USER_NAME ADMIN_PASS USER_PASS DB_NAME DB_PASSWORD URL HOST
-    volumes: [wp_file_volume:/app/data/]
+      - ADMIN_NAME USER_NAME ADMIN_PASS_FILE:../secrets/credentials2.txt USER_PASS_FILE:../secrets/credentials.txt DB_NAME DB_PASSWORD_FILE:../secrets/db_password.txt URL HOST DB_ROOT_PASS_FILE:../secrets/db_root_password.txt
+    volumes: ['wp_file_volume:/app/data/']
+    networks:
+      - public
+      - private
+    depends_on:
+      mariadb:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:9000"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    ports: ['9000:9000']
+    restart: on-failure
+    env_file: ./.env
+    secrets:
+      - db_pass
+      - db_root_pass
+      - credentials
+      - credentials2
+    environment:
+      - ADMIN_NAME USER_NAME ADMIN_PASS_FILE:../secrets/credentials2.txt USER_PASS_FILE:../secrets/credentials.txt DB_NAME DB_PASSWORD_FILE:../secrets/db_password.txt URL HOST DB_ROOT_PASS_FILE:../secrets/db_root_password.txt
+    volumes: ['wp_db_volume:/app/data/']
     networks: [private]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 volumes:
   wp_file_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/small/data/
+      device: /home/${ADMIN_NAME}/data/
   wp_db_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/small/data/
+      device: /home/${ADMIN_NAME}/data/
 networks:
+  public:
   private:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 8.8.8.0/24
-        - gateway: 8.8.8.1
+  # driver: bridge
+  # ipam:
+  #   config:
+  #     - subnet: 10.0.0.0/19
+  #     - gateway: 10.0.0.1
 secrets:
   credentials:
     file: ../secrets/credentials.txt
+  credentials2:
+    file: ../secrets/credentials2.txt
   db_pass:
     file: ../secrets/db_password.txt
   db_root_pass:
