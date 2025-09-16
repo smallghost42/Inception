@@ -8,6 +8,6 @@ RUN chmod +x /app/mariadb_db_check.sh
 
 ENV PATH="/app:$PATH"
 
-WORKDIR /app/data
+WORKDIR /app/data/
 
 ENTRYPOINT [ "mariadb_db_check.sh" ]

@@ -3,6 +3,7 @@ services:
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
+    image: nginx
     ports: ['443:443']
     restart: on-failure
     env_file: ./.env
@@ -16,7 +17,8 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    ports: ['3306:3306']
+    image: wordpress
+    ports: ['9000:9000']
     restart: on-failure
     env_file: ./.env
     secrets:
@@ -24,7 +26,7 @@ services:
       - credentials
       - credentials2
     environment:
-      - ADMIN_NAME USER_NAME ADMIN_PASS_FILE:../secrets/credentials2.txt USER_PASS_FILE:../secrets/credentials.txt DB_NAME DB_PASSWORD_FILE:../secrets/db_password.txt URL HOST DB_ROOT_PASS_FILE:../secrets/db_root_password.txt
+      - ADMIN_NAME USER_NAME DB_NAME URL HOST
     volumes: ['wp_file_volume:/app/data/']
     networks:
       - public
@@ -43,7 +45,8 @@ services:
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
-    ports: ['9000:9000']
+    image: mariadb
+    ports: ['3306:3306']
     restart: on-failure
     env_file: ./.env
     secrets:
@@ -52,7 +55,7 @@ services:
       - credentials
       - credentials2
     environment:
-      - ADMIN_NAME USER_NAME ADMIN_PASS_FILE:../secrets/credentials2.txt USER_PASS_FILE:../secrets/credentials.txt DB_NAME DB_PASSWORD_FILE:../secrets/db_password.txt URL HOST DB_ROOT_PASS_FILE:../secrets/db_root_password.txt
+      - ADMIN_NAME USER_NAME URL HOST
     volumes: ['wp_db_volume:/app/data/']
     networks: [private]
     healthcheck:
@@ -66,13 +69,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/${ADMIN_NAME}/data/
+      device: /home/${ADMIN_NAME}/data/wordpress
   wp_db_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/${ADMIN_NAME}/data/
+      device: /home/${ADMIN_NAME}/data/mariadb
 networks:
   public:
   private:

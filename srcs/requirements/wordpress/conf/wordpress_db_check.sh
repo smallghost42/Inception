@@ -1,28 +1,22 @@
 #!/bin/sh
+chmod -R 755 /app/data
 
-# if wp core version; then
-#   echo "already there"
-# else
-#   php -d memory_limit=512M $(which wp) core download
-#   wp core download
-#   wp config create --dbname=$DB_NAME --dbuser=$USER_NAME --dbpass=$DB_PASS_FILE --dbhost=$HOST
-#   wp db create
-#   wp core install --url=$URL --admin_user=$ADMIN_NAME --admin_password=$ADMIN_PASS_FILE
-# fi
+DB_PASS=$(cat /run/secrets/db_pass)
+ADMIN_PASS=$(cat /run/secrets/credentials2)
 
 if [ ! -f wp-load.php ]; then
-  wp core download
+  echo "install core download"
+  wp core download --path="/app/data/"
 fi
-
-echo $DB_NAME $DB_PASS_FILE
-cat $DB_PASS_FILE
 
 if [ ! -f wp-config.php ]; then
-  wp config create --dbname="$DB_NAME" --dbuser="$USER_NAME" --dbpass="$DB_PASS_FILE" --dbhost="$HOST:3306"
+  echo "----------------------"
+  wp config create --dbname="$DB_NAME" --dbuser="$USER_NAME" --dbpass="$DB_PASS" --dbhost="mariadb:3306" --path="/app/data/"
+  echo "----------------------"
 fi
 
-wp db create || true
+wp db create --path="/app/data/" || true
 
 if ! wp core is-installed; then
-  wp core install --url="$URL" --admin_user="$ADMIN_NAME" --admin_password="$ADMIN_PASS_FILE"
+  wp core install --url="$URL" --admin_user="$ADMIN_NAME" --admin_password="$ADMIN_PASS" --path="/app/data/"
 fi
