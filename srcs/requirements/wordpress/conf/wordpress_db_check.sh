@@ -11,6 +11,7 @@ fi
 
 if [ ! -f wp-config.php ]; then
   echo "----------------------"
+  sleep 5
   wp config create --dbname="$DB_NAME" --dbuser="$USER_NAME" --dbpass="$DB_PASS" --dbhost="mariadb:3306" --path="/app/data/"
   echo "----------------------"
 fi
