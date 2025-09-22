@@ -57,7 +57,8 @@ services:
     environment:
       - ADMIN_NAME USER_NAME URL HOST
     volumes: ['wp_db_volume:/app/data/']
-    networks: [private]
+    networks:
+      - private
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
