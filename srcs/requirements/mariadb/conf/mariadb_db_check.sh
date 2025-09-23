@@ -18,7 +18,6 @@ DB_PASS=$(cat /run/secrets/db_pass)
 # Start MariaDB as coprocess (no network for safety)
 mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
-
 coproc MDB { mariadbd --user=mysql --datadir=/app/data --skip-networking; }
 
 # Wait until MariaDB is ready
@@ -39,6 +38,10 @@ FLUSH PRIVILEGES;
 EOF
 fi
 
+# Shutdown temporary MariaDB
 mariadb-admin -u root shutdown
 
+# wait "${MDB_PID}"
+
+# Start MariaDB in the foreground
 exec mariadbd --datadir=/app/data --user=mysql

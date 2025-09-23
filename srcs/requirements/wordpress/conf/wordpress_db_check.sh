@@ -10,12 +10,11 @@ if [ ! -e wp-load.php ]; then
 fi
 
 until nc -z -w 2 mariadb 3306; do
-  echo "Waiting for MariaDB to be available..."
+  echo "Waiting ..."
   sleep 2
 done
 
 if [ ! -e wp-config.php ]; then
-  echo $DB_NAME $USER_NAME $DB_PASS
   wp config create --dbname="$DB_NAME" --dbuser="$USER_NAME" --dbpass="$DB_PASS" --dbhost="mariadb:3306" --path="/app/data/"
 fi
 
@@ -30,5 +29,7 @@ if ! wp core is-installed; then
     --title="$TITLE" \
     --path="/app/data/"
 fi
+
+chmod -R 777 /app/data/wp-content/uploads
 
 exec php-fpm83 -FR
