@@ -8,6 +8,7 @@ services:
     restart: on-failure
     env_file: ./.env
     environment: [URL]
+    volumes: ['wp_file_volume:/app/data/']
     networks: [public]
     depends_on:
       wordpress:
@@ -18,7 +19,6 @@ services:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
     image: wordpress
-    ports: ['9000:9000']
     restart: on-failure
     env_file: ./.env
     secrets:
@@ -26,7 +26,7 @@ services:
       - credentials
       - credentials2
     environment:
-      - ADMIN_NAME USER_NAME DB_NAME URL HOST
+      - ADMIN_NAME USER_NAME DB_NAME URL HOST ADMIN_EMAIL TITLE
     volumes: ['wp_file_volume:/app/data/']
     networks:
       - public
@@ -36,7 +36,7 @@ services:
         condition: service_healthy
         restart: true
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:9000"]
+      test: ["CMD", "pidof", "php-fpm83"]
       interval: 5s
       retries: 5
       start_period: 10s
@@ -46,7 +46,6 @@ services:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
     image: mariadb
-    ports: ['3306:3306']
     restart: on-failure
     env_file: ./.env
     secrets:
