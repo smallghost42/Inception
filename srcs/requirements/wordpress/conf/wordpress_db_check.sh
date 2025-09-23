@@ -3,6 +3,7 @@ chmod -R 755 /app/data
 
 DB_PASS=$(cat /run/secrets/db_pass)
 ADMIN_PASS=$(cat /run/secrets/credentials2)
+USER_PASS=$(cat /run/secrets/credentials)
 
 if [ ! -e wp-load.php ]; then
   echo "install core download"
@@ -28,6 +29,7 @@ if ! wp core is-installed; then
     --admin_email="$ADMIN_EMAIL" \
     --title="$TITLE" \
     --path="/app/data/"
+  wp user create newuser $USER_NAME@example.com --role="editor" --user_pass="$USER_PASS"
 fi
 
 chmod -R 777 /app/data/wp-content/uploads
