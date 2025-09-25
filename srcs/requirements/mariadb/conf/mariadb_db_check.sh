@@ -20,28 +20,31 @@ mkdir -p /run/mysqld
 chown mysql:mysql /run/mysqld
 coproc MDB { mariadbd --user=mysql --datadir=/app/data --skip-networking; }
 
+mariadbd -u root <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY $DB_ROOT_PASS
+FLUSH PRIVILEGES;
+EOF
+
 # Wait until MariaDB is ready
-until mariadb -u root -e "SELECT 1;" 2>/dev/null; do
+until mariadb -u root -p $DB_ROOT_PASS -e "SELECT 1;" 2>/dev/null; do
   echo "Waiting for MariaDB to be ready..."
   sleep 2
 done
 
 # Create database and user if needed
-DB=$(mariadb -u root -e "SHOW DATABASES LIKE '$DB_NAME';" | grep "$DB_NAME" | wc -l)
+DB=$(mariadb -u root -p $DB_ROOT_PASS -e "SHOW DATABASES LIKE '$DB_NAME';" | grep "$DB_NAME" | wc -l)
 
 if [ "$DB" -eq 0 ]; then
-  mariadb -u root <<EOF
+  mariadb -u root -p $DB_ROOT_PASS <<EOF
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
-CREATE USER IF NOT EXISTS '$USER_NAME'@'%' IDENTIFIED BY '$DB_PASS';
-GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$USER_NAME'@'%';
+CREATE USER IF NOT EXISTS '$ADMIN_NAME'@'%' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$ADMIN_NAME'@'%';
 FLUSH PRIVILEGES;
 EOF
 fi
 
 # Shutdown temporary MariaDB
-mariadb-admin -u root shutdown
-
-# wait "${MDB_PID}"
+mariadb-admin -u root -p $DB_ROOT_PASS shutdown
 
 # Start MariaDB in the foreground
 exec mariadbd --datadir=/app/data --user=mysql

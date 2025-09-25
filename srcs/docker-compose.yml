@@ -9,7 +9,7 @@ services:
     env_file: ./.env
     environment: [URL]
     volumes: ['wp_file_volume:/app/data/']
-    networks: [public]
+    networks: [nginx_wp]
     depends_on:
       wordpress:
         condition: service_healthy
@@ -21,16 +21,10 @@ services:
     image: wordpress
     restart: on-failure
     env_file: ./.env
-    secrets:
-      - db_pass
-      - credentials
-      - credentials2
-    environment:
-      - ADMIN_NAME USER_NAME DB_NAME URL HOST ADMIN_EMAIL TITLE
+    secrets: [db_pass credentials credentials2]
+    environment: [ADMIN_NAME USER_NAME DB_NAME URL HOST TITLE PORT]
     volumes: ['wp_file_volume:/app/data/']
-    networks:
-      - public
-      - private
+    networks: [nginx_wp wp_mariadb]
     depends_on:
       mariadb:
         condition: service_healthy
@@ -48,16 +42,10 @@ services:
     image: mariadb
     restart: on-failure
     env_file: ./.env
-    secrets:
-      - db_pass
-      - db_root_pass
-      - credentials
-      - credentials2
-    environment:
-      - ADMIN_NAME USER_NAME URL HOST
+    secrets: [db_pass db_root_pass credentials credentials2]
+    environment: [ADMIN_NAME USER_NAME URL HOST]
     volumes: ['wp_db_volume:/app/data/']
-    networks:
-      - private
+    networks: [wp_mariadb]
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -77,8 +65,8 @@ volumes:
       o: bind
       device: /home/${ADMIN_NAME}/data/mariadb
 networks:
-  public:
-  private:
+  nginx_wp:
+  wp_mariadb:
   # driver: bridge
   # ipam:
   #   config:
