@@ -21,10 +21,13 @@ services:
     image: wordpress
     restart: on-failure
     env_file: ./.env
-    secrets: [db_pass credentials credentials2]
+    secrets:
+      - db_pass
+      - credentials
+      - credentials2
     environment: [ADMIN_NAME USER_NAME DB_NAME URL HOST TITLE PORT]
     volumes: ['wp_file_volume:/app/data/']
-    networks: [nginx_wp wp_mariadb]
+    networks: [nginx_wp, wp_mariadb]
     depends_on:
       mariadb:
         condition: service_healthy
@@ -42,7 +45,11 @@ services:
     image: mariadb
     restart: on-failure
     env_file: ./.env
-    secrets: [db_pass db_root_pass credentials credentials2]
+    secrets:
+      - db_pass
+      - db_root_pass
+      - credentials
+      - credentials2
     environment: [ADMIN_NAME USER_NAME URL HOST]
     volumes: ['wp_db_volume:/app/data/']
     networks: [wp_mariadb]
