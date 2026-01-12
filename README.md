@@ -24,7 +24,7 @@ nginx reference , tutorials
 mariadb , doc
 wordpress , doc
 
-Ai Was used by sycing possible outdate or wrong reference from doc and helping accurate each step
+Ai Was used by sycing possible outdate or wrong reference from doc and helping accurate each step and error log
 
 • A Project description section must also explain the use of Docker and the sources
 included in the project. It must indicate the main design choices, as well as a

@@ -16,5 +16,3 @@ ENV PATH="/app:$PATH"
 WORKDIR /app/data
 
 ENTRYPOINT [ "wordpress_db_check.sh" ]
-
-CMD ["php83-fpm", "-FR"]

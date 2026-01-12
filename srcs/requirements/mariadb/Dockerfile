@@ -10,4 +10,4 @@ ENV PATH="/app:$PATH"
 
 WORKDIR /app/data/
 
-ENTRYPOINT [ "mariadb_db_check.sh" ]
+ENTRYPOINT [ "mariadb_db_check.sh"]
