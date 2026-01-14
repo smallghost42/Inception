@@ -30,9 +30,9 @@ else
   wp option update siteurl "$FULL_URL" --path="/app/data/" || true
 fi
 
-wp user create newuser $USER_NAME@example.com --role="editor" --user_pass="$USER_PASS" || true
+wp user create "$USER_NAME" "$USER_NAME@example.com" --role="editor" --user_pass="$USER_PASS" --path="/app/data/" || true
 
-chmod -R 777 /app/data/wp-content/uploads
+chmod -R 777 /app/data/wp-content
 
 sed -i "s|^listen = .*|listen = 0.0.0.0:${WP_PORT}|" /etc/php83/php-fpm.d/www.conf
 

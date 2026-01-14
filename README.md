@@ -75,7 +75,7 @@ At the end we will be able to setup a small infrastructure using :
 - comparaison:
   - Virtual Machines vs Docker: Docker shares the host kernel and isolates processes with namespaces/cgroups, making it faster to start and lighter than full VMs; ideal for microservices.
   - Secrets vs Environment Variables: Secrets are mounted from files and avoid storing sensitive values in images or commits. Envs configure non-sensitive runtime parameters.
-  - Docker Network vs Host Network: Internal bridge networks isolate services; only Nginx exposes a public DB_PORT, reducing attack surface.
-  - Docker Volumes vs Bind Mounts: Bind mounts ensure developer-visible persistence at known paths; volumes abstract storage.
+  - Docker Network vs Host Network: A bridge network creates a private, virtual workspace inside your host machine; The container shares the host’s network stack directly.
+  - Docker Volumes vs Bind Mounts: stored in a part of the host filesystem that is managed by Docker (/var/lib/docker/volumes/ on Linux), Bind mounts ensure developer-visible persistence at known paths.
 
 

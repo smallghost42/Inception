@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 
+# Initialize MariaDB data directory if not
 if [ ! -d "/app/data/mysql" ]; then
   echo "Initialize DB"
   mariadb-install-db --user=mysql --datadir=/app/data
 fi
 
-# Edit config *before* starting MariaDB
+# Configure MariaDB to listen on all interfaces
 sed -i 's/^!includedir \/etc\/my\.cnf\.d/#&/' /etc/my.cnf
 sed -i '/^\[mysqld\]/a bind-address=0.0.0.0' /etc/my.cnf
 
@@ -37,5 +38,5 @@ EOF
 
 mariadb-admin -u root -p$DB_ROOT_PASS shutdown
 
-
+# Start MariaDB server
 exec mariadbd --datadir=/app/data --user=mysql --bind-address=0.0.0.0 --port=${DB_PORT}

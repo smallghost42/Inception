@@ -20,4 +20,6 @@ reset: fclean
 	mkdir -p /home/ferafano/data/mariadb/
 	mkdir -p /home/ferafano/data/wordpress
 
+reload: reset all
+
 re: fclean all
