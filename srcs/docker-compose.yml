@@ -3,11 +3,12 @@ services:
     build:
       context: ./requirements/nginx
       dockerfile: Dockerfile
-    image: nginx
-    ports: ['443:443']
+    image: nginx:ng
+    container_name: nginx
+    ports: ['${EXPOSED_PORT}:${EXPOSED_PORT}']
     restart: on-failure
     env_file: ./.env
-    environment: [URL]
+    environment: [URL EXPOSED_PORT]
     volumes: ['wp_file_volume:/app/data/']
     networks: [nginx_wp]
     depends_on:
@@ -18,14 +19,15 @@ services:
     build:
       context: ./requirements/wordpress
       dockerfile: Dockerfile
-    image: wordpress
+    image: wordpress:wp
+    container_name: wordpress
     restart: on-failure
     env_file: ./.env
     secrets:
       - db_pass
       - credentials
       - credentials2
-    environment: [ADMIN_NAME USER_NAME DB_NAME URL HOST TITLE PORT]
+    environment: [ADMIN_NAME USER_NAME DB_NAME URL TITLE EXPOSED_PORT DB_PORT WP_PORT]
     volumes: ['wp_file_volume:/app/data/']
     networks: [nginx_wp, wp_mariadb]
     depends_on:
@@ -42,7 +44,8 @@ services:
     build:
       context: ./requirements/mariadb
       dockerfile: Dockerfile
-    image: mariadb
+    image: mariadb:mb
+    container_name: mariadb
     restart: on-failure
     env_file: ./.env
     secrets:
@@ -50,7 +53,7 @@ services:
       - db_root_pass
       - credentials
       - credentials2
-    environment: [ADMIN_NAME USER_NAME URL HOST]
+    environment: [ADMIN_NAME USER_NAME URL EXPOSED_PORT DB_PORT]
     volumes: ['wp_db_volume:/app/data/']
     networks: [wp_mariadb]
     healthcheck:
@@ -64,21 +67,16 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/${ADMIN_NAME}/data/wordpress
+      device: /home/${USER_HOME}/data/wordpress
   wp_db_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/${ADMIN_NAME}/data/mariadb
+      device: /home/${USER_HOME}/data/mariadb
 networks:
   nginx_wp:
   wp_mariadb:
-  # driver: bridge
-  # ipam:
-  #   config:
-  #     - subnet: 10.0.0.0/19
-  #     - gateway: 10.0.0.1
 secrets:
   credentials:
     file: ../secrets/credentials.txt
