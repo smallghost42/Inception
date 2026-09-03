@@ -1,6 +1,4 @@
 
-*This project has been created as part of the 42 curriculum by ferafano*
-
 ## Description
 this project is about learning how to setup a small infrastructure composed of different services under specific rules.
 At the end we will be able to setup a small infrastructure using : 
